@@ -32,6 +32,11 @@ def get_dataloaders(image_size, show_image=False):
     # Set your transform for both train and validation datasets
     train_transform = transforms.Compose([
         transforms.Resize((image_size, image_size)),
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        transforms.RandomRotation(degrees=15),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         transforms.ToTensor(),
     ])
 
