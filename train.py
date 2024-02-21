@@ -84,7 +84,7 @@ def train(model, train_loader, val_loader, device, num_epochs=5, mode='default')
         #     param.requires_grad = True
 
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 10).to(device)
+        model.fc = nn.Linear(num_ftrs, 9).to(device)
 
         optimizer = optim.SGD([
             {'params': model.fc.parameters()},
@@ -96,8 +96,16 @@ def train(model, train_loader, val_loader, device, num_epochs=5, mode='default')
 
         # optimizer = optim.SGD(model.fc.parameters(), lr=0.001, momentum=0.9)
     elif mode == "fine_tuning":
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 10).to(device)
+        # For ResNets
+        # num_ftrs = model.fc.in_features
+        # model.fc = nn.Linear(num_ftrs, 9).to(device)
+
+        # For MobileNet_V3_large
+        model_ft.classifier[-1] = nn.Linear(1280, 9).to(device)
+
+        # For MobileNet_V2
+        num_ftrs = model_ft.classifier[1].in_features
+        model_ft.classifier[1] = nn.Linear(num_ftrs, 9).to(device)
 
         optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
@@ -163,14 +171,17 @@ def train(model, train_loader, val_loader, device, num_epochs=5, mode='default')
 if __name__ == "__main__":
     image_size = 224
 
-    model = SimpleCNN(image_size)
+    # model = SimpleCNN(image_size)
     # model = SimpleCNN_v2()
     # model = ImprovedCNN()
     # model = models.resnet18()
+    model = models.efficientnet_b0(weights='IMAGENET1K_V1')
+    # model = models.mobilenet_v3_large()
 
-    # Feature extractor
     # model = models.resnet18(weights='IMAGENET1K_V1')
     # model = models.resnet34(weights='IMAGENET1K_V1')
+    model = models.mobilenet_v3_large(pretrained=True)
+    model = models.mobilenet_v2(pretrained=True)
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
