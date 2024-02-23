@@ -4,6 +4,7 @@ import torchvision.models as models
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import seaborn as sns
 from torch import nn
 from created_models.models import SimpleCNN
 from utils.dataset import get_dataloaders
@@ -11,13 +12,13 @@ from utils.saving_loading_models import load_model
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from torchinfo import summary
 from sklearn.metrics import confusion_matrix, classification_report
-from utils.model_selector import model_selector
+from utils.model_selector import model_selector_for_fine_tuning
 
 
 def display_random_predictions(model, num_epochs ,test_loader, class_labels, num_images=8, mode='default', additional_text='', augmentation=''):
     # load the model based on the mode
     if mode == "feature_extractor" or mode == "fine_tuning":
-        model_selector(model, 9)
+        model_selector_for_fine_tuning(model, 9)
         load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
     else:
         load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
@@ -74,7 +75,7 @@ def evaluate(model, num_epochs, test_loader, mode='default', additional_text='',
 
     if mode == "feature_extractor" or mode == "fine_tuning":
 
-        model_selector(model, 9)
+        model_selector_for_fine_tuning(model, 9)
 
         load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
     else:
@@ -106,8 +107,8 @@ def evaluate(model, num_epochs, test_loader, mode='default', additional_text='',
     print('F1 Score: {:.2f}'.format(f1))
 
     # print out the number of parameters
-    total_params = sum(p.numel() for p in model.parameters())
-    print(f"Total number of parameters: {total_params}")
+    # total_params = sum(p.numel() for p in model.parameters())
+    # print(f"Total number of parameters: {total_params}")
 
     # print out the model structure
     if model_structure:
@@ -138,13 +139,20 @@ if __name__ == "__main__":
     # Init the test-loader
     _, _, test_loader = get_dataloaders(image_size)
 
+    class_labels = ['Daisy', 'Dandelion', 'Levander', 'Lilly', 'Lotus', 'Orchid', 'Rose', 'Sunflower', 'Tulip']
+
     # determine the evaluation metrics
     true_labels, predictions = evaluate(model, 25, test_loader, mode='fine_tuning', augmentation='aug', model_structure=True)
 
-    # Crete the confusion matrix
+    # Create the confusion matrix
     cm = confusion_matrix(true_labels, predictions)
-    print('Confusion Matrix:')
-    print(cm)
+    # Plot the confusion matrix using seaborn
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Greens', xticklabels=class_labels, yticklabels=class_labels)
+    plt.title('Confusion Matrix')
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.show()
 
     # Create classification report
     report = classification_report(true_labels, predictions)
@@ -152,5 +160,4 @@ if __name__ == "__main__":
     print(report)
 
     # Try the model on the testing dataset
-    class_labels = ['Daisy', 'Dandelion', 'Levander', 'Lilly', 'Lotus', 'Orchid', 'Rose', 'Sunflower', 'Tulip']
     display_random_predictions(model, 25, test_loader, class_labels, mode='fine_tuning', augmentation='aug')
