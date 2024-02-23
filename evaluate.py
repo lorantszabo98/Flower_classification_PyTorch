@@ -11,19 +11,16 @@ from utils.saving_loading_models import load_model
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from torchinfo import summary
 from sklearn.metrics import confusion_matrix, classification_report
+from utils.model_selector import model_selector
 
 
-def display_random_predictions(model, test_loader, class_labels, num_images=8, mode='default'):
+def display_random_predictions(model, num_epochs ,test_loader, class_labels, num_images=8, mode='default', additional_text='', augmentation=''):
     # load the model based on the mode
     if mode == "feature_extractor" or mode == "fine_tuning":
-        # num_ftrs = model.fc.in_features
-        # model.fc = nn.Linear(num_ftrs, 9)
-
-        load_model('./trained_models', model, mode=mode)
+        model_selector(model, 9)
+        load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
     else:
-        num_ftrs = model.classifier[1].in_features
-        model.classifier[1] = nn.Linear(num_ftrs, 9)
-        load_model('./trained_models', model)
+        load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
     # set model to evaluation mode
     model.eval()
 
@@ -73,21 +70,15 @@ def display_random_predictions(model, test_loader, class_labels, num_images=8, m
     plt.show()
 
 
-def evaluate(model, test_loader, mode='default', model_structure=False):
+def evaluate(model, num_epochs, test_loader, mode='default', additional_text='', augmentation='', model_structure=False):
 
     if mode == "feature_extractor" or mode == "fine_tuning":
-        # num_ftrs = model.fc.in_features
-        # model.fc = nn.Linear(num_ftrs, 9)
 
-        # model.classifier[1] = nn.Linear(in_features=1280, out_features=9)
+        model_selector(model, 9)
 
-        # model.classifier[-1] = nn.Linear(1280, 9)
-
-        load_model('./trained_models', model, mode=mode)
+        load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
     else:
-        num_ftrs = model.classifier[1].in_features
-        model.classifier[1] = nn.Linear(num_ftrs, 9)
-        load_model('./trained_models', model)
+        load_model('./trained_models', model, number_of_epochs=num_epochs, mode=mode, additional_text=additional_text, augmentation=augmentation)
 
     model.eval()
     y_true = []
@@ -138,17 +129,17 @@ if __name__ == "__main__":
     # model = SimpleCNN()
     # model = SimpleCNN_v2()
     # model = ImprovedCNN()
-    # model = models.resnet18()
+    model = models.resnet18()
     # model = models.resnet34()
     # model = models.efficientnet_b0()
     # model = models.mobilenet_v3_large()
-    model = models.mobilenet_v2()
+    # model = models.mobilenet_v2()
 
     # Init the test-loader
     _, _, test_loader = get_dataloaders(image_size)
 
     # determine the evaluation metrics
-    true_labels, predictions = evaluate(model, test_loader, model_structure=True)
+    true_labels, predictions = evaluate(model, 25, test_loader, mode='fine_tuning', augmentation='aug', model_structure=True)
 
     # Crete the confusion matrix
     cm = confusion_matrix(true_labels, predictions)
@@ -162,4 +153,4 @@ if __name__ == "__main__":
 
     # Try the model on the testing dataset
     class_labels = ['Daisy', 'Dandelion', 'Levander', 'Lilly', 'Lotus', 'Orchid', 'Rose', 'Sunflower', 'Tulip']
-    display_random_predictions(model, test_loader, class_labels)
+    display_random_predictions(model, 25, test_loader, class_labels, mode='fine_tuning', augmentation='aug')
