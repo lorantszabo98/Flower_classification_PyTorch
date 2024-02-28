@@ -33,3 +33,21 @@ Dataset
 -------
 
 The flower classification dataset used in this project can be downloaded from [here](https://www.kaggle.com/datasets/shahidulugvcse/national-flowers). It includes images in 9 classes: Tulip, Sunflower, Rose, Orchid, Lotus, Lilly, Lavender, Dandelion, Daisy.  The dataset is split into training and testing sets for model training and evaluation.
+
+
+Trained Models
+--------------
+The table below shows the models that have been trained. The training dataset was augmented, the models were also experimented in different modes.
+
+| Model            | Mode              | Epoch | Test accuracy(%) | F1 score |
+| ---------------- | ----------------- | ----- | ---------------- | -------- |
+| ResNet18         | fine tuned        | 25    | 80.82            | 0.78     |
+| ResNet18         | fine_tuned        | 50    | 79.23            | 0.76     |
+| ResNet18         | feature extractor | 25    | 80.82            | 0.78     |
+| EfficientNetB0   | default           | 25    | 54.26            | 0.52     |
+| EfficientNetB0   | fine tuned        | 25    | 82.63            | 0.79     |
+| MobileNetV3large | default           | 25    | 40.18            | 0.38     |
+| MobileNetV3large | fine tuned        | 25    | 81.38            | 0.78     |
+| MobileNetV2      | fine_tuned        | 25    | 81.73            | 0.78     |
+
+It should be noted that the lavender class of the test dataset is corrupted and populated with dandelion images, hence the test values are low.
