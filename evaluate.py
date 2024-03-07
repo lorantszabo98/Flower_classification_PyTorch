@@ -55,7 +55,13 @@ def display_random_predictions(model, num_epochs ,test_loader, class_labels, num
                     # turns of the axis
                     ax.axis('off')
                     #  sets the title of the subplot
-                    ax.set_title(f'predicted: {class_labels[preds[j]]}')
+                    actual_label = class_labels[labels[j].item()]
+                    predicted_label = class_labels[preds[j].item()]
+
+                    # Set the title color based on match or mismatch
+                    title_color = 'green' if actual_label == predicted_label else 'red'
+
+                    ax.set_title(f'Actual: {actual_label}, Predicted: {predicted_label}', color=title_color)
 
                     # convert the image tensor to NumPy array and transpose
                     img = np.transpose(images.cpu().data[j].numpy(), (1, 2, 0))
